@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
+
+<body>
+  <div>
+    <h3>Generated Password:</h3>
+    <p id='password'></p>
+  </div>
+
+  <hr>
+
+  <div>
+    <h3>Comment Permlink for ned post:</h3>
+    <p id='permlink'></p>
+  </div>
+
+  <hr>
+
+  <div>
+    <h3>Estimated Account Value of genievot in dollar:</h3>
+    <p id='avl'></p>
+  </div>
+
+  <hr>
+
+  <div>
+    <h3>Reputation of genievot account:</h3>
+    <p id='rep'></p>
+  </div>
+
+  <hr>
+
+  <div>
+    <h3>Vest To Steem for genievot account:</h3>
+    <p id='vts'></p>
+  </div>
+
+
+
+
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+  <script type="text/javascript" src="steem.min.js"></script>
+  <script type="text/javascript">
+    //Create appropriate password for steem it account.
+    var password = steem.formatter.createSuggestedPassword();
+    $('#password').html(password);
+    //--------------------
+
+    //Create appropriate permlink for commenting on a post.
+    var parentAuthor = 'ned'; //Author name
+    var parentPermlink = 'a-selfie'; // Post permlink
+    var commentPermlink = steem.formatter.commentPermlink(parentAuthor, parentPermlink);
+    $('#permlink').html(commentPermlink);
+    //--------------------
+
+    //Get Estimate Account Value
+    steem.api.getAccounts(["genievot"], function(e1, accounts) {
+      var accountValueInUSD = steem.formatter.estimateAccountValue(accounts[0])
+        .catch(function(err) {
+          console.log(err);
+        })
+        .then(function(data) {
+          $('#avl').html(data);
+        });
+    });
+
+    //--------------------
+
+    //Reputation of genievot account:
+    steem.api.getAccounts(["genievot"], function(e1, accounts) {
+      var reputation = steem.formatter.reputation(accounts[0].reputation);
+      $('#rep').html(reputation);
+    });
+    //--------------------
+
+    //Vest To Steem of genievot account
+    let totalVestingShares;
+    let totalVestingFundSteem;
+    let vestingShares;
+    steem.api.getDynamicGlobalProperties(function(err, result) {
+      totalVestingShares = result.total_vesting_shares;
+      totalVestingFundSteem = result.total_vesting_fund_steem;
+      steem.api.getAccounts(["genievot"], function(e1, accounts) {
+        vestingShares = accounts[0].vesting_shares;
+        var steemPower = steem.formatter.vestToSteem(vestingShares,
+          totalVestingShares,
+          totalVestingFundSteem);
+        $('#vts').html(steemPower);
+      });
+    });
+    //--------------------
+  </script>
+</body>
+
+</html>
